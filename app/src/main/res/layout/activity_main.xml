@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/odinc_color"
+    tools:context=".MainActivity">
+
+    <ImageButton
+        android:id="@+id/buttonCappuccino"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginStart="64dp"
+        android:layout_marginBottom="64dp"
+        android:background="@drawable/capuccino"
+        android:onClick="btnSendClick"
+        app:layout_constraintBottom_toTopOf="@+id/buttonLatte"
+        app:layout_constraintStart_toEndOf="@+id/buttonEspresso" />
+
+    <ImageButton
+        android:id="@+id/buttonEspresso"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginBottom="64dp"
+        android:background="@drawable/espresso"
+        android:onClick="btnSendClick"
+        app:layout_constraintBottom_toTopOf="@+id/buttonAmericano"
+        app:layout_constraintStart_toStartOf="@+id/buttonAmericano" />
+
+    <ImageButton
+        android:id="@+id/buttonLatte"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginStart="64dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/latte"
+        android:onClick="btnSendClick"
+        app:layout_constraintBottom_toBottomOf="@+id/buttonAmericano"
+        app:layout_constraintStart_toEndOf="@+id/buttonAmericano" />
+
+    <Button
+        android:layout_width="181dp"
+        android:layout_height="129dp"
+        android:onClick="btnSendClick"
+        android:text="Hello World!"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.014"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.992" />
+
+    <ImageButton
+        android:id="@+id/buttonAmericano"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginStart="288dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/americano"
+        android:onClick="btnSendClick"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/logo_footer" />
+
+</android.support.constraint.ConstraintLayout>
