@@ -16,81 +16,82 @@
         PRINT  "TCP_CLOSE OK id=",sock_id 
     END 
 .END 
-.program coffeeroboth1()
-	DRIVE 4,10
-	DRIVE 4,-10
-.end
-
-.program coffeeroboth2()
-	DRIVE 4,10
-	DRIVE 4,-10
-.end
-
-.PROGRAM coffeerobotpc()
-  port = 49152 
-  max_length = 255 
-  tout_open = 5 
-  tout_rec = 5 
-  text_id = 0 
-  tout = 60 
-  eret = 0 
+.PROGRAM coffeeroboth1() #11
+  DRIVE 4,10
+  DRIVE 4,-10
+  DRIVE 4,30
+  DRIVE 4,-30
+  BREAK
+  coffeemade = TRUE
+.END
+.PROGRAM coffeeroboth2() #0
+  DRIVE 4,10
+  DRIVE 4,-10
+.END
+.PROGRAM coffeerobotpc() #0
+  port = 49152
+  max_length = 255
+  tout_open = 5
+  tout_rec = 5
+  text_id = 0
+  tout = 60
+  eret = 0
   rret = 0
-  stopCon = FALSE;
-  ;WHILE TRUE DO
+  stopcon = FALSE;
+;WHILE TRUE DO
 con_begin:
-  CALL open_socket     ;Connecting communication 
-  IF sock_id < 0    THEN 
-	IF stopCon == TRUE THEN
-		GOTO exit
-	END
-    GOTO  con_begin 
+  CALL open_socket;Connecting communication 
+  IF sock_id<0 THEN
+    IF stopcon==TRUE THEN
+      GOTO exit
+    END
+    GOTO con_begin
   END
-  PRINT  "Connection established"
+  PRINT "Connection established"
 cyc_begin:
-  IF stopCon == TRUE THEN
+  IF stopcon==TRUE THEN
     GOTO exit
   END
   tout_rec = 5
-  CALL recv        ;Receiving the result of processing 1 
-  IF rret == -34024  THEN 
-    PRINT  "Recieve timeout" 
-    GOTO  cyc_begin 
+  CALL recv;Receiving the result of processing 1 
+  IF rret==-34024 THEN
+    PRINT "Recieve timeout"
+    GOTO cyc_begin
   END
-  IF rret == -34025  THEN 
-    PRINT  "Connection error" 
+  IF rret==-34025 THEN
+    PRINT "Connection error"
     CALL close_socket
-    GOTO  con_begin 
+    GOTO con_begin
   END
-  IF rret == 0 THEN
-    
+  IF rret==0 THEN
     PRINT $recv_buf[1]
     $drink = ""
-    IF $recv_buf[1] == "Cappuccino" THEN
-		$drink = $recv_buf[1]
+    IF $recv_buf[1]=="Cappuccino\n" THEN
+      $drink = $recv_buf[1]
     END
-  
-	IF $recv_buf[1] == "Espresso" THEN
-		$drink = $recv_buf[1]
+    IF $recv_buf[1]=="Espresso\n" THEN
+      $drink = $recv_buf[1]
     END
-	
-	IF $recv_buf[1] == "Americano" THEN
-		$drink = $recv_buf[1]
+    IF $recv_buf[1]=="Americano\n" THEN
+      $drink = $recv_buf[1]
     END
-	
-	IF $recv_buf[1] == "Latte" THEN
-		$drink = $recv_buf[1]
+    IF $recv_buf[1]=="Latte\n" THEN
+      $drink = $recv_buf[1]
     END
-  
-	IF $drink !+ "" THEN
-		MC EXECUTE coffeeroboth1
-		MC EXECUTE coffeeroboth2
-	END
+    coffeemade = FALSE
+    IF $drink!="" THEN
+      MC EXECUTE coffeeroboth1
+;MC EXECUTE 2: coffeeroboth2
+    END
+    WAIT coffeemade==TRUE
+    eret = 0
+    $sdata[1] = "OK\n"
+    CALL send(eret,$sdata[1])
   END
-  
   GOTO cyc_begin
-    ;END    
-exit: 
-    CALL    close_socket   ;Closing communication 
+;END    
+exit:
+  CALL close_socket;Closing communication 
 exit_end:
 .END
 

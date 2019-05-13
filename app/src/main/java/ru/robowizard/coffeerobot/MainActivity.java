@@ -196,8 +196,9 @@ public class MainActivity extends AppCompatActivity implements TCPListener{
 
                         @Override
                         public void run() {
-                            dialog.hide();
-                            Toast.makeText(getApplicationContext(), theMessage, Toast.LENGTH_SHORT).show();
+                            if (dialog.isShowing())
+                                dialog.hide();
+                            //Toast.makeText(getApplicationContext(), "Your welcome!", Toast.LENGTH_SHORT).show();
                         }
                     });
                 } catch (Exception e) {
