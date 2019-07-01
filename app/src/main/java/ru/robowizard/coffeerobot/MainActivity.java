@@ -110,8 +110,8 @@ public class MainActivity extends AppCompatActivity implements TCPListener{
     private ProgressDialog dialog;
     private void setupDialog() {
         dialog = new ProgressDialog(this,ProgressDialog.STYLE_SPINNER);
-        dialog.setTitle("Making");
-        dialog.setMessage("Please wait...");
+        dialog.setTitle("Идёт приготовление напитка");
+        dialog.setMessage("Ожидайте...");
         dialog.setIndeterminate(true);
         dialog.show();
     }
