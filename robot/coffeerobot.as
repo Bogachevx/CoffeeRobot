@@ -140,6 +140,7 @@ cyc_begin:
     $sdata[1] = "OK\n"
     call tcp_send(eret,$sdata[1])
   END
+  ; Где-то тут  TWAIT 3
   GOTO cyc_begin
 ;END    
 exit:
