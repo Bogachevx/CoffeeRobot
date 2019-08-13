@@ -14,9 +14,11 @@ import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.MediaController;
 import android.widget.Toast;
 import android.os.Handler;
 import android.view.View;
+import android.widget.VideoView;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -32,12 +34,16 @@ public class MainActivity extends AppCompatActivity implements TCPListener{
     private Handler UIHandler = new Handler();
 
     public static final String APP_PREFERENCES = "IPPORT";
+    public String AdPath = "/sdcard/CoffeeRobot/advid.mp4";
     public String IP = "192.168.1.36";
     public int PORT = 49152;
     private SharedPreferences mSettings;
 
     private EditText ip;
     private EditText port;
+    VideoView videoView;
+
+    boolean isVideoFound = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +57,20 @@ public class MainActivity extends AppCompatActivity implements TCPListener{
         verifyStoragePermissions(this);
         generateNoteOnSD();
         ConnectToServer();
+
+        File file = new File(AdPath);
+        if(file.exists())
+            isVideoFound = true;
+
+        if (isVideoFound)
+        {
+            videoView = (VideoView) findViewById(R.id.videoView);
+            videoView.setVideoPath(AdPath);
+        }
+
+
+        //videoView.requestFocus(0);
+
     }
 
     private int secretcounter = 0;
@@ -103,7 +123,18 @@ public class MainActivity extends AppCompatActivity implements TCPListener{
                 break;
             }
         }
-        setupDialog();
+
+        if (isVideoFound)
+        {
+            videoView.setVisibility(View.VISIBLE);
+            videoView.seekTo(0);
+            videoView.start(); // начинаем воспроизведение автоматически
+            Toast.makeText(getApplicationContext(), "Ожидайте готовности", Toast.LENGTH_SHORT).show();
+        } else
+        {
+            setupDialog();
+        }
+
         TCPCommunicator.writeToSocket(Drink,UIHandler,this);
     }
 
@@ -129,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements TCPListener{
                 writer.append("192.168.0.2\n49152\n");
                 writer.flush();
                 writer.close();
-                Toast.makeText(getApplicationContext(), "First init", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "First init", Toast.LENGTH_LONG).show();
             } else
             {
                 File file = new File(root, "ini.txt");
@@ -196,9 +227,18 @@ public class MainActivity extends AppCompatActivity implements TCPListener{
 
                         @Override
                         public void run() {
-                            if (dialog.isShowing())
-                                dialog.hide();
-                            //Toast.makeText(getApplicationContext(), "Your welcome!", Toast.LENGTH_SHORT).show();
+
+                            if (isVideoFound)
+                            {
+                                videoView.stopPlayback();
+                                videoView.setVisibility(View.INVISIBLE);
+                                Toast.makeText(getApplicationContext(), "Ваш кофе готов", Toast.LENGTH_SHORT).show();
+                            } else
+                            {
+                                if (dialog.isShowing())
+                                    dialog.hide();
+                            }
+
                         }
                     });
                 } catch (Exception e) {
