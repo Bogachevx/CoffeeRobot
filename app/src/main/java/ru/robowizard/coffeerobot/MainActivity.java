@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
@@ -26,6 +27,8 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements TCPListener{
 
@@ -34,7 +37,8 @@ public class MainActivity extends AppCompatActivity implements TCPListener{
     private Handler UIHandler = new Handler();
 
     public static final String APP_PREFERENCES = "IPPORT";
-    public String AdPath = "/sdcard/CoffeeRobot/advid.mp4";
+    //public String AdPath = "/sdcard/CoffeeRobot/advid.mp4";
+    public String AdPath = "/sdcard/CoffeeRobot/vid";
     public String IP = "192.168.1.36";
     public int PORT = 49152;
     private SharedPreferences mSettings;
@@ -43,7 +47,13 @@ public class MainActivity extends AppCompatActivity implements TCPListener{
     private EditText port;
     VideoView videoView;
 
+    int vidTime = 0;
+    int vidCount = 0;
+
     boolean isVideoFound = false;
+    static boolean isFolderPermission = true;
+    List<String> files = new ArrayList<String>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,17 +65,41 @@ public class MainActivity extends AppCompatActivity implements TCPListener{
         actionBar.hide();
         setContentView(R.layout.activity_main);
         verifyStoragePermissions(this);
-        generateNoteOnSD();
-        ConnectToServer();
+        if (isFolderPermission) {
+            generateNoteOnSD();
+            ConnectToServer();
 
-        File file = new File(AdPath);
-        if(file.exists())
-            isVideoFound = true;
+            File yourDir = new File(AdPath);
+            for (File f : yourDir.listFiles()) {
+                if (f.isFile()) {
+                    String name = f.getAbsolutePath();
+                    files.add(name);
+                }
+            }
+            if (files.size() > 0) {
+                isVideoFound = true;
+            }
+        }
+        //File file = new File(AdPath);
+        //if(file.exists())
+        //    isVideoFound = true;
 
         if (isVideoFound)
         {
             videoView = (VideoView) findViewById(R.id.videoView);
-            videoView.setVideoPath(AdPath);
+            videoView.setVideoPath(files.get(vidCount));
+
+            videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                public void onCompletion(MediaPlayer mp) {
+                    vidCount++;
+                    if (vidCount == files.size())
+                    {
+                        vidCount = 0;
+                    }
+                    videoView.setVideoPath(files.get(vidCount));
+                    videoView.start(); //need to make transition seamless.
+                }
+            });
         }
 
 
@@ -126,9 +160,10 @@ public class MainActivity extends AppCompatActivity implements TCPListener{
 
         if (isVideoFound)
         {
+            if (videoView.getDuration() - vidTime < 180);
             videoView.setVisibility(View.VISIBLE);
-            videoView.seekTo(0);
-            videoView.start(); // начинаем воспроизведение автоматически
+            videoView.seekTo(vidTime);
+            videoView.start();
             Toast.makeText(getApplicationContext(), "Ожидайте готовности", Toast.LENGTH_SHORT).show();
         } else
         {
@@ -141,8 +176,8 @@ public class MainActivity extends AppCompatActivity implements TCPListener{
     private ProgressDialog dialog;
     private void setupDialog() {
         dialog = new ProgressDialog(this,ProgressDialog.STYLE_SPINNER);
-        dialog.setTitle("Making");
-        dialog.setMessage("Please wait...");
+        dialog.setTitle("Ожидайте!");
+        dialog.setMessage("Ваш кофе готовится");
         dialog.setIndeterminate(true);
         dialog.show();
     }
@@ -191,6 +226,7 @@ public class MainActivity extends AppCompatActivity implements TCPListener{
                     PERMISSIONS_STORAGE,
                     REQUEST_EXTERNAL_STORAGE
             );
+            isFolderPermission = false;
         }
     }
 
@@ -230,6 +266,7 @@ public class MainActivity extends AppCompatActivity implements TCPListener{
 
                             if (isVideoFound)
                             {
+                                vidTime = videoView.getCurrentPosition();
                                 videoView.stopPlayback();
                                 videoView.setVisibility(View.INVISIBLE);
                                 Toast.makeText(getApplicationContext(), "Ваш кофе готов", Toast.LENGTH_SHORT).show();
